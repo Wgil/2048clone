@@ -1,6 +1,8 @@
 # 2048clone
 Clone of the 2048 famous game.
----
+
+This is my first Unity project, it is my version of 2048 tutorial from https://www.youtube.com/channel/UCZCoRWCtZhMdgXuw2vThniQ. With time, I will be adding more features to the game to learn more about Unity and C#.
+
 To do:
 
 * Update High Score only when the game is over.
