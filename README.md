@@ -12,3 +12,4 @@ To do:
 * Improve game visualization:
   * Set right padding and margins.
   * Change play again button.
+  * Add more colors after tile 128.
