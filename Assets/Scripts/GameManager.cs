@@ -12,14 +12,22 @@ public enum GameState
 
 public class GameManager : MonoBehaviour {
 
-	public GameState State;
+
+	//Coroutine identifiers to stop after move made to avoid stop the YouWon coroutine with StopAllCoroutines()
+	private IEnumerator MoveOneLineDownIndexCoroutineIdentifier;
+	private IEnumerator MoveOneLineUpIndexCoroutineIdentifier;
+	private IEnumerator MoveCoroutineIdentifier;
+
+	public GameState State = GameState.Playing;
 	//Show a slider in the inspector instead of an input
 	[Range(0,2f)]
 	public float delay;
+	public float panelDelay = 3f;
 	private bool moveMade;
 	private bool[] lineMoveComplete = new bool[4]{true, true, true, true};
 
 	public GameObject YouWonText;
+	public GameObject PlayAgainButton;
 	public GameObject GameOverText;
 	public Text GameOverScoreText;
 	public GameObject GameOverPanel;
@@ -57,14 +65,21 @@ public class GameManager : MonoBehaviour {
 	{
 		GameOverScoreText.text = ScoreTracker.Instance.Score.ToString ();
 		GameOverPanel.SetActive (true);
+		ScoreTracker.Instance.SetHighScore ();
 	}
 
-	private void YouWon()
+	IEnumerator YouWon()
 	{
 		GameOverText.SetActive(false);
+		PlayAgainButton.SetActive (false);
 		YouWonText.SetActive(true);
-		GameOverScoreText.text = ScoreTracker.Instance.Score.ToString ();
+
+		ScoreTracker.Instance.SetHighScore ();
+
 		GameOverPanel.SetActive(true);
+		yield return new WaitForSeconds (panelDelay);
+
+		GameOverPanel.SetActive(false);
 	}
 
 	bool CanMove()
@@ -123,7 +138,7 @@ public class GameManager : MonoBehaviour {
 				LineOfTiles [i].PlayMergeAnimation ();
 				ScoreTracker.Instance.Score += LineOfTiles [i].Number;
 				if (LineOfTiles [i].Number == 2048)
-					YouWon ();
+					StartCoroutine (YouWon());
 				return true;
 			}
 		}
@@ -152,7 +167,7 @@ public class GameManager : MonoBehaviour {
 				LineOfTiles [i].PlayMergeAnimation ();
 				ScoreTracker.Instance.Score += LineOfTiles [i].Number;
 				if (LineOfTiles [i].Number == 2048)
-					YouWon ();
+					StartCoroutine (YouWon());
 				return true;
 			}
 		}
@@ -192,7 +207,7 @@ public class GameManager : MonoBehaviour {
 			if (randomNum == 0)
 				EmptyTiles [indexForNewNumber].Number = 4;
 			else
-				EmptyTiles [indexForNewNumber].Number = 2;
+				EmptyTiles [indexForNewNumber].Number = 1024;
 
 			EmptyTiles [indexForNewNumber].PlayAppearAnimation ();
 			
@@ -233,7 +248,11 @@ public class GameManager : MonoBehaviour {
 		moveMade = false;
 		ResetMergeFlags ();
 		if (delay > 0)
-			StartCoroutine (MoveCoroutine (md));
+		{
+			//Needed to stop all coroutines after all moves made.
+			MoveCoroutineIdentifier = MoveCoroutine (md);
+			StartCoroutine (MoveCoroutineIdentifier);
+		}
 		else
 		{
 			for (int i = 0; i < rows.Count; i++)
@@ -281,25 +300,39 @@ public class GameManager : MonoBehaviour {
 	public IEnumerator MoveCoroutine(MoveDirection md)
 	{
 		State = GameState.WaitingForMoveToEnd;
-
+		bool MovedUp = false;
 		//start moving each line with delays depending on MoveDirection md
 		switch (md)
 		{
 		case MoveDirection.Down:
 			for (int i = 0; i < columns.Count; i++)
-				StartCoroutine (MoveOneLineUpIndexCoroutine (columns [i], i));
+			{
+				MoveOneLineUpIndexCoroutineIdentifier = MoveOneLineUpIndexCoroutine (columns [i], i);
+				StartCoroutine (MoveOneLineUpIndexCoroutineIdentifier);
+				MovedUp = true;
+			}
 		break;
 		case MoveDirection.Left:
 			for (int i = 0; i < rows.Count; i++)
-				StartCoroutine (MoveOneLineDownIndexCoroutine (rows [i], i));
+			{
+				MoveOneLineDownIndexCoroutineIdentifier = MoveOneLineDownIndexCoroutine (rows [i], i);
+				StartCoroutine (MoveOneLineDownIndexCoroutineIdentifier);	
+			}
 			break;
 		case MoveDirection.Right:
 			for (int i = 0; i < rows.Count; i++)
-				StartCoroutine (MoveOneLineUpIndexCoroutine (rows [i], i));
+			{
+				MoveOneLineUpIndexCoroutineIdentifier = MoveOneLineUpIndexCoroutine (rows [i], i);
+				StartCoroutine (MoveOneLineUpIndexCoroutineIdentifier);	
+				MovedUp = true;
+			}
 			break;
 		case MoveDirection.Up:
 			for (int i = 0; i < columns.Count; i++)
-				StartCoroutine (MoveOneLineDownIndexCoroutine (columns [i], i));
+			{
+				MoveOneLineDownIndexCoroutineIdentifier = MoveOneLineDownIndexCoroutine (columns [i], i);
+				StartCoroutine (MoveOneLineDownIndexCoroutineIdentifier);	
+			}
 			break;
 		}
 
@@ -317,6 +350,12 @@ public class GameManager : MonoBehaviour {
 		}
 
 		State = GameState.Playing;
-		StopAllCoroutines ();
+		StopCoroutine(MoveCoroutineIdentifier);
+		if (MovedUp)
+			StopCoroutine(MoveOneLineUpIndexCoroutineIdentifier);
+		else
+			StopCoroutine(MoveOneLineDownIndexCoroutineIdentifier);
+		
+
 	}
 }

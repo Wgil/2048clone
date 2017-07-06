@@ -21,13 +21,6 @@ public class ScoreTracker : MonoBehaviour {
 		{
 			score = value;
 			ScoreText.text = score.ToString ();
-
-
-			if (PlayerPrefs.GetInt ("HighScore") < score)
-			{
-				PlayerPrefs.SetInt ("HighScore", score);
-				HighScoreText.text = score.ToString ();
-			}
 		}
 	}
 
@@ -44,6 +37,15 @@ public class ScoreTracker : MonoBehaviour {
 
 		ScoreText.text = "0";
 		HighScoreText.text = PlayerPrefs.GetInt ("HighScore").ToString();
+	}
+
+	public void SetHighScore()
+	{
+		if (PlayerPrefs.GetInt ("HighScore") < ScoreTracker.Instance.Score) {
+			PlayerPrefs.SetInt ("HighScore", ScoreTracker.Instance.Score);
+			ScoreTracker.Instance.HighScoreText.text = ScoreTracker.Instance.Score.ToString ();
+			ScoreText.text = ScoreTracker.Instance.Score.ToString ();
+		}
 	}
 
 }
