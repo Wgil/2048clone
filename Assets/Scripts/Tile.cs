@@ -22,7 +22,7 @@ public class Tile : MonoBehaviour {
 				SetEmpty ();
 			else
 			{
-				ApplyStyle (number);
+				ApplyStyleFromHolder();
 				SetVisible ();
 			}
 		}
@@ -51,57 +51,12 @@ public class Tile : MonoBehaviour {
 		anim.SetTrigger ("Appear");
 	}
 
-	void ApplyStyleFromHolder(int index)
+	void ApplyStyleFromHolder()
 	{
-		TileText.text = TileStyleHolder.Instance.TileStyles [index].Number.ToString();
-		TileText.color = TileStyleHolder.Instance.TileStyles [index].TextColor;
-		TileImage.color = TileStyleHolder.Instance.TileStyles [index].TileColor;
-	}
-
-	void ApplyStyle(int num)
-	{
-		switch (num)
-		{
-		case 2:
-			ApplyStyleFromHolder (0);
-			break;
-		case 4:
-			ApplyStyleFromHolder (1);
-			break;
-		case 8:
-			ApplyStyleFromHolder (2);
-			break;
-		case 16:
-			ApplyStyleFromHolder (3);
-			break;
-		case 32:
-			ApplyStyleFromHolder (4);
-			break;
-		case 64:
-			ApplyStyleFromHolder (5);
-			break;
-		case 128:
-			ApplyStyleFromHolder (6);
-			break;
-		case 256:
-			ApplyStyleFromHolder (7);
-			break;
-		case 512:
-			ApplyStyleFromHolder (8);
-			break;
-		case 1024:
-			ApplyStyleFromHolder (9);
-			break;
-		case 2048:
-			ApplyStyleFromHolder (10);
-			break;
-		case 4096:
-			ApplyStyleFromHolder (11);
-			break;
-		default:
-			Debug.LogError ("Check the number that you pass to ApplyStyle!");
-			break;
-		}
+		int indexColor = TileStyleHolder.Instance.GetColorIndex (number);
+		TileText.text = number.ToString ();
+		TileText.color = TileStyleHolder.Instance.TileStyles [indexColor].TextColor;
+		TileImage.color = TileStyleHolder.Instance.TileStyles [indexColor].TileColor;
 	}
 
 	private void SetVisible()

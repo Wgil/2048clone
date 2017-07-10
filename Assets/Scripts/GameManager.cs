@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+
 
 public enum GameState
 {
@@ -11,7 +13,8 @@ public enum GameState
 }
 
 public class GameManager : MonoBehaviour {
-
+		
+	public int BaseNumber;
 
 	//Coroutine identifiers to stop after move made to avoid stop the YouWon coroutine with StopAllCoroutines()
 	private IEnumerator MoveOneLineDownIndexCoroutineIdentifier;
@@ -132,12 +135,13 @@ public class GameManager : MonoBehaviour {
 			if (LineOfTiles[i].Number!= 0 && LineOfTiles[i].Number == LineOfTiles[i+1].Number &&
 				LineOfTiles[i].mergedThisTurn == false && LineOfTiles[i+1].mergedThisTurn == false)
 			{
-				LineOfTiles[i].Number *= 2;
+				LineOfTiles[i].Number *= BaseNumber;
 				LineOfTiles[i+1].Number = 0;
 				LineOfTiles[i].mergedThisTurn = true;
 				LineOfTiles [i].PlayMergeAnimation ();
 				ScoreTracker.Instance.Score += LineOfTiles [i].Number;
-				if (LineOfTiles [i].Number == 2048)
+				//If Base number = 2, then BaseNumber^11 = 2048
+				if (LineOfTiles [i].Number == Math.Pow(BaseNumber, 11))
 					StartCoroutine (YouWon());
 				return true;
 			}
@@ -161,12 +165,13 @@ public class GameManager : MonoBehaviour {
 			if (LineOfTiles[i].Number != 0 && LineOfTiles[i].Number == LineOfTiles[i-1].Number &&
 				LineOfTiles[i].mergedThisTurn == false && LineOfTiles[i-1].mergedThisTurn == false)
 			{
-				LineOfTiles [i].Number *= 2;
+				LineOfTiles [i].Number *= BaseNumber;
 				LineOfTiles [i - 1].Number = 0;
 				LineOfTiles [i].mergedThisTurn = true;
 				LineOfTiles [i].PlayMergeAnimation ();
 				ScoreTracker.Instance.Score += LineOfTiles [i].Number;
-				if (LineOfTiles [i].Number == 2048)
+				//If Base number = 2, then BaseNumber^11 = 2048
+				if (LineOfTiles [i].Number == Math.Pow(BaseNumber, 11))
 					StartCoroutine (YouWon());
 				return true;
 			}
@@ -202,13 +207,14 @@ public class GameManager : MonoBehaviour {
 	void Generate()
 	{
 		if (EmptyTiles.Count > 0) {
-			int indexForNewNumber = Random.Range (0, EmptyTiles.Count);
-			int randomNum = Random.Range (0, 10);
-			if (randomNum == 0)
-				EmptyTiles [indexForNewNumber].Number = 4;
-			else
+			int indexForNewNumber = UnityEngine.Random.Range (0, EmptyTiles.Count);
+			int randomNum = UnityEngine.Random.Range (0, 10);
+			if (randomNum == 0) {
+				EmptyTiles [indexForNewNumber].Number = BaseNumber * BaseNumber;			
+			} else
+			{
 				EmptyTiles [indexForNewNumber].Number = 1024;
-
+			}
 			EmptyTiles [indexForNewNumber].PlayAppearAnimation ();
 			
 			EmptyTiles.RemoveAt (indexForNewNumber);
