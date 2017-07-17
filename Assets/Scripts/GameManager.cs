@@ -213,7 +213,7 @@ public class GameManager : MonoBehaviour {
 				EmptyTiles [indexForNewNumber].Number = BaseNumber * BaseNumber;			
 			} else
 			{
-				EmptyTiles [indexForNewNumber].Number = 1024;
+				EmptyTiles [indexForNewNumber].Number = BaseNumber;
 			}
 			EmptyTiles [indexForNewNumber].PlayAppearAnimation ();
 			
